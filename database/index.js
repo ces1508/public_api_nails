@@ -8,8 +8,6 @@ const databaseSetup = {
   // password: process.env.DB_PASSWORD_FULL,
   db: process.env.DB_NAME
 }
-
-console.log(databaseSetup)
 class Datasource {
   constructor () {
     /** @private connection with full permission to databse */
@@ -33,7 +31,7 @@ class Datasource {
       if (!alreadyExits) {
         let newUser = await this.fullUser.table('clients').insert(data)
         if (newUser.inserted === 1) {
-          return this.getUserProfile(newUser.generated_keys[0])
+          return this.getUserProfile(data.email)
         } else {
           return { error: { code: 'UNKNOW_ERROR', action: 'CREATE USER', message: 'cant create user' } }
         }
@@ -85,12 +83,30 @@ class Datasource {
       return { error: { code: 'DATABASE_ERROR', action: 'GET_SERVICES', message: e.message } }
     }
   }
+  async getServicesByArrayIds (ids) {
+    try {
+      let services = await this.userRead.table('services').getAll(this.userRead.args(ids))
+      return services
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GET_SERVICES_BY_IDS', message: e.message } }
+    }
+  }
   async getEmployes (filter = {}, skip = 0) {
     try {
       let employes = await this.userRead.table('employes').filter(filter).without('password', 'salt').skip(skip).limit(25)
       return employes
     } catch (e) {
-      return { error: { code: 'DATABASE_ERROR', action: 'GET_SERVICES', message: e.message } }
+      return { error: { code: 'DATABASE_ERROR', action: 'GET_EMPLOYES', message: e.message } }
+    }
+  }
+  async validEmployed (id) {
+    try {
+      let employed = await this.userRead.table('employes').get(id).without('password', 'salt', 'email')
+      if (employed) return true
+      return false
+    } catch (e) {
+      console.log({ error: { code: 'DATABASE_ERROR', action: 'VALIDATE_EMPLOYED', message: e.message } })
+      return false
     }
   }
   async getAllNotfications (userId, skip) {
@@ -111,10 +127,66 @@ class Datasource {
   }
   async changeStateNotification (id) {
     try {
-      let notification = await await this.fullUser.table('notifications').get(id).update({ state: 'read' })
+      let notification = await this.fullUser.table('notifications').get(id).update({ state: 'read' })
       return notification
     } catch (e) {
       return { error: { code: 'DATABASE_ERROR', action: 'GET_SINGLE_NOTIFICATION', message: e.message } }
+    }
+  }
+  async professionalsAvailables (distance = 5, unit = 'km', userCordinates, limit = 25, skip = 0, startDate, endDate) {
+    try {
+      let professionals = await this.userRead.table('employes')
+        .getNearest(this.userRead.point(userCordinates.lat, userCordinates.long),
+          { index: 'geo_position', maxDist: distance, unit })
+        .map(doc => {
+          return {
+            distance: doc('dist'),
+            comuna: doc('doc')('comuna'),
+            firstName: doc('doc')('firstName'),
+            lastName: doc('doc')('lastName'),
+            id: doc('doc')('id'),
+            geo_position: doc('doc')('geo_position'),
+            available: this.userRead.table('reservations').between([doc('doc')('id'), this.userRead.epochTime(startDate)], [doc('doc')('id'), this.userRead.epochTime(endDate)], { index: 'employedDate' }).isEmpty()
+          }
+        }).filter({ available: true }).limit(limit).skip(skip)
+      return professionals
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GET_AVIABLABLES_PROFESSIONALS', message: e.message } }
+    }
+  }
+  async reservationCreate (data) {
+    try {
+      let reservation = await this.fullUser.table('reservations').insert({ ...data, date: this.fullUser.epochTime(data.date), createdAt: this.fullUser.now() })
+      return reservation
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GET_SINGLE_NOTIFICATION', message: e.message } }
+    }
+  }
+  async reservationList (userId, state = 'pending', skip = 0, limit = 25) {
+    try {
+      let reservations = await this.userRead.table('reservations').getAll([userId, state], { index: 'userState' })
+        .merge(doc => {
+          return {
+            employed: this.userRead.table('employes').get(doc('employedId')).without('address', 'createdAt', 'geo_position', 'email', 'password', 'defualtPassword', 'salt', 'location'),
+            services: doc('services').map(ser => {
+              return {
+                cant: ser('cant'),
+                service: this.userRead.table('services').get(ser('id'))
+              }
+            })
+          }
+        })
+      return reservations
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_RESERVATIONS_STATE_PENDING', message: e.message } }
+    }
+  }
+  async cancelReservations (userId, skip, limit) {
+    try {
+      let reservations = await this.userRead.table('reservations').getAll([userId, 'cancel'], { index: 'userState' })
+      return reservations
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_RESERVATIONS_STATE_CANCEL', message: e.message } }
     }
   }
 }
