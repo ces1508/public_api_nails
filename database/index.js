@@ -189,5 +189,13 @@ class Datasource {
       return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_RESERVATIONS_STATE_CANCEL', message: e.message } }
     }
   }
+  async listDecorations (skip, limit) {
+    try {
+      let reservation = await this.userRead.table('decorations').skip(skip).limit(limit)
+      return reservation
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_DECORATIONS', message: e.message } }
+    }
+  }
 }
 module.exports = new Datasource()
