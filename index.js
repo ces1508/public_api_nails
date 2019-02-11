@@ -7,7 +7,7 @@ const path = require('path')
 const rfs = require('rotating-file-stream')
 const passport = require('passport')
 const { strategy } = require('./utils')
-const { users, services, employes, reservations, notifications } = require('./routers')
+const { users, services, employes, reservations, notifications, decorations } = require('./routers')
 const { profile } = require('./controllers/user')
 require('dotenv').config()
 
@@ -32,8 +32,9 @@ app.use('/services', passport.authenticate('jwt', { session: false }), services)
 app.use('/employes', passport.authenticate('jwt', { session: false }), employes)
 app.use('/reservations', passport.authenticate('jwt', { session: false }), reservations)
 app.use('/notifications', passport.authenticate('jwt', { session: false }), notifications)
+app.use('/decorations', passport.authenticate('jwt', { session: false }), decorations)
 app.use('*', (req, res) => {
-  res.send('no puedes acceder campeon')
+  res.status(403).send('no puedes acceder campeon')
 })
 
 app.listen(PORT, error => {
