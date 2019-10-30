@@ -167,7 +167,8 @@ class Datasource {
       let reservations = await this.userRead.table('reservations').getAll([userId, state], { index: 'userState' })
         .merge(doc => {
           return {
-            employed: this.userRead.table('employes').get(doc('employedId')).without('address', 'createdAt', 'geo_position', 'email', 'password', 'defualtPassword', 'salt', 'location'),
+            employed: this.userRead.table('employes').get(doc('employedId')).pluck('id', 'firstName', 'lastName'),
+            address: this.userRead.table('clients').get(doc('userId')).bracket('address').filter({ id: doc('address') }),
             services: doc('services').map(ser => {
               return {
                 cant: ser('cant'),
@@ -175,7 +176,7 @@ class Datasource {
               }
             })
           }
-        })
+        }).without('employedId')
       return reservations
     } catch (e) {
       return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_RESERVATIONS_STATE_PENDING', message: e.message } }
