@@ -19,10 +19,11 @@ const create = async (req, res) => {
     let cant = data.services.filter(item => item.id === service.id)
     if (cant) return { id: service.id, cant: cant[0].amount }
   })
+  console.log(Math.round(new Date(data.date).getTime() / 1000.0))
   let reservation = {
     ...data,
     services,
-    date: Math.round(new Date().getTime() / 1000.0),
+    date: Math.round(new Date(data.date).getTime() / 1000.0),
     state: 'pending'
   }
   let newReservation = await Datasource.reservationCreate(reservation)

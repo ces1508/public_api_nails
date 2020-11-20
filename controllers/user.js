@@ -35,10 +35,11 @@ const register = async (req, res) => {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'we have problmes, please try later' } })
   }
   delete data.confirmationPassword
-  data.address = [{ type: 'house', name: 'casa', value: data.address, barrio: data.barrio, id: uuid.uuid(), default: true }]
+  data.address = []
   let newUser = await Datasource.registerUser(data)
   if (newUser.error) {
     let { error } = newUser
+    console.log(error)
     if (error.code === 'USER_ALREADY_EXITS') return res.status(400).json(error)
     return res.status(500).json({ error: true, message: 'we cant create the user, please try later' })
   }
@@ -109,7 +110,7 @@ const updateProfile = async (req, res) => {
   if (profile.error) return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR' } })
   if (profile.skipped) return res.status(413).send('unAuthorizade')
   if (profile.replaced > 0 || profile.unchanged > 0) return res.json({ status: 'ok' })
-  res.status(422).json({ errror: { code: 'UNKNOW_ERROR', message: 'we cant update profile' } })
+  res.status(422).json({ errror: { code: 'INTERNAL_SERVER_ERROR', message: 'we cant update profile' } })
 }
 
 const updatePassword = async (req, res) => {

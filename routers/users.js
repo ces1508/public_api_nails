@@ -13,7 +13,6 @@ router.post('/', [
   body('password').exists().isString(),
   body('firstName').isString().exists().trim(),
   body('lastName').isString().trim(),
-  body('address').isString(),
   body('phone').exists().isString(),
   body('confirmationPassword').custom((value, { req }) => {
     if (value !== req.body.password) throw new Error('password confirmation dont match')

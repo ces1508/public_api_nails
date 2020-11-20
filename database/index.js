@@ -28,6 +28,7 @@ class Datasource {
   async registerUser (data) {
     try {
       let alreadyExits = await this.alreadyExits(data.email)
+      console.log(alreadyExits)
       if (!alreadyExits) {
         let newUser = await this.fullUser.table('clients').insert(data)
         if (newUser.inserted === 1) {
@@ -164,7 +165,7 @@ class Datasource {
   }
   async reservationList (userId, state = 'pending', skip = 0, limit = 25) {
     try {
-      let reservations = await this.userRead.table('reservations').getAll([userId, state], { index: 'userState' })
+      let reservations = await this.userRead.table('reservations').getAll([userId, state], { index: 'userState' }).orderBy('date')
         .merge(doc => {
           return {
             employed: this.userRead.table('employes').get(doc('employedId')).pluck('id', 'firstName', 'lastName'),
