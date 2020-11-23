@@ -11,8 +11,9 @@ const history = async (req, res) => {
 const create = async (req, res) => {
   let data = req.body
   data.userId = req.user.id
-  let employed = await Datasource.validEmployed(data.employedId)
-  if (!employed) return res.status(422).json({ error: { message: 'debes enviar un profesional valido' } })
+  data.employedId = null
+  // let employed = await Datasource.validEmployed(data.employedId)
+  // if (!employed) return res.status(422).json({ error: { message: 'debes enviar un profesional valido' } })
   let servicesIds = data.services.map(service => service.id)
   let services = await Datasource.getServicesByArrayIds(servicesIds)
   services = services.map(service => {

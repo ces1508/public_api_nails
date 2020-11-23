@@ -15,7 +15,7 @@ route.post('/', [
       return true
     }
   }),
-  check('employedId').isUUID(4).exists(),
+  // check('employedId').isUUID(4).exists(),
   check('address').isUUID(4),
   check('paymentMethod').isIn(['creditCard', 'cash']).withMessage('debes enviar un metodo de pago valido')
 ], validateData, create)

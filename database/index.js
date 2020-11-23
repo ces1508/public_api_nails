@@ -168,12 +168,12 @@ class Datasource {
       let reservations = await this.userRead.table('reservations').getAll([userId, state], { index: 'userState' }).orderBy('date')
         .merge(doc => {
           return {
-            employed: this.userRead.table('employes').get(doc('employedId')).pluck('id', 'firstName', 'lastName'),
+            employed: this.userRead.branch(doc('employedId').eq(null).not(), this.userRead.table('employes').get(doc('employedId')).pluck('id', 'firstName', 'lastName'), doc('employedId')), // branch realiza la funcion de un if, donde el primero parametro es la comparacion, el segundo el caso positivo y el tercer parametro es el caso negativo
             address: this.userRead.table('clients').get(doc('userId')).bracket('address').filter({ id: doc('address') }),
-            services: doc('services').map(ser => {
+            services: doc('services').map(service => {
               return {
-                cant: ser('cant'),
-                service: this.userRead.table('services').get(ser('id'))
+                cant: service('cant'),
+                service: this.userRead.table('services').get(service('id'))
               }
             })
           }
