@@ -51,7 +51,7 @@ const addAddress = async (req, res) => {
   let newAddress = { ...req.body }
   let profile = await Datasource.getUserProfile(user.email)
   let { address } = profile
-  address.push({ ...newAddress, id: uuid.uuid() })
+  address.push({ ...newAddress, id: uuid.uuid(), state: 'published' })
   let action = await Datasource.updateProfile(user.id, { address })
   if (action.replaced >= 1) {
     return res.status(201).json({ status: 'ok', message: 'la dirreccion ha sido agregada con exito' })
@@ -82,8 +82,15 @@ const destroyAddress = async (req, res) => {
   let profile = await Datasource.getUserProfile(user.email)
   let { address } = profile
   let index = address.findIndex(item => item.id === id)
+
   if (index >= 0) {
-    address = [...address.slice(0, index), ...address.slice(index + 1)]
+    address = [
+      ...address.filter(item => item.id !== id),
+      {
+        ... address[0],
+        status: 'deleted'
+      }
+    ]
     let action = await Datasource.updateProfile(user.id, { address })
     if (action.replaced >= 1 || action.unchanged >= 1) return res.status(200).json({ status: 'ok' })
   }
@@ -95,6 +102,13 @@ const profile = async (req, res) => {
   let profile = await Datasource.getUserProfile(email)
   if (profile.error) return res.status(500).end()
   if (profile) {
+    profile = {
+      ...profile,
+      address: profile.address.filter(el => {
+        if (Object.prototype.hasOwnProperty.call(el, 'status')) return el.status !== 'published'
+        return true
+      })
+    }
     return res.status(200).json(profile)
   }
   return res.status(403).end()
