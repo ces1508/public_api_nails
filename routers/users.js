@@ -48,7 +48,7 @@ const addressValidator = [
     let keys = Object.keys(value)
     if (!keys.includes('lat') || !keys.includes('long')) throw new Error('debens enviar las propiedades lat y long')
     return true
-  })
+  }).optional()
 ]
 
 router.post('/address', passport.authenticate('jwt', { session: false }), addressValidator, validateData, addAddress)
