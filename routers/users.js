@@ -43,12 +43,12 @@ const addressValidator = [
   check('barrio').isString().withMessage('debes enviar el nombre del barrio'),
   check('type').isIn(['house', 'apto']),
   check('comuna').isInt({ min: 1, max: 20 }).optional().withMessage('la comuna no puede ser entre 1 y 20'),
-  check('location').custom(value => {
-    if (typeof value !== 'object') throw new Error('location debe ser un objecto')
-    let keys = Object.keys(value)
-    if (!keys.includes('lat') || !keys.includes('long')) throw new Error('debens enviar las propiedades lat y long')
-    return true
-  }).optional()
+  // check('location').custom(value => {
+  //   if (typeof value !== 'object') throw new Error('location debe ser un objecto')
+  //   let keys = Object.keys(value)
+  //   if (!keys.includes('lat') || !keys.includes('long')) throw new Error('debens enviar las propiedades lat y long')
+  //   return true
+  // }).optional()
 ]
 
 router.post('/address', passport.authenticate('jwt', { session: false }), addressValidator, validateData, addAddress)
