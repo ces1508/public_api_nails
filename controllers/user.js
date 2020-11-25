@@ -105,7 +105,7 @@ const profile = async (req, res) => {
     profile = {
       ...profile,
       address: profile.address.filter(el => {
-        if (Object.prototype.hasOwnProperty.call(el, 'status')) return el.status !== 'published'
+        if (Object.prototype.hasOwnProperty.call(el, 'status')) return el.status !== 'deleted'
         return true
       })
     }
