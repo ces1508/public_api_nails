@@ -4,8 +4,8 @@ require('dotenv').config()
 const databaseSetup = {
   host: process.env.DB_URL,
   port: process.env.DB_PORT,
-  user: process.env.DB_USER_FULL,
-  password: process.env.DB_PASSWORD_FULL,
+  // user: process.env.DB_USER_FULL,
+  // password: process.env.DB_PASSWORD_FULL,
   db: process.env.DB_NAME
 }
 class Datasource {
@@ -15,8 +15,8 @@ class Datasource {
     /** @private connection with only permission to read */
     this.userRead = r({
       ...databaseSetup,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
+      // user: process.env.DB_USER,
+      // password: process.env.DB_PASSWORD
     })
   }
   /**
@@ -197,6 +197,24 @@ class Datasource {
       return reservation
     } catch (e) {
       return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_DECORATIONS', message: e.message } }
+    }
+  }
+
+  async getAllCategories () {
+    try {
+      const categories = await this.userRead.table('categories')
+      return categories
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_CATEGORIES', message: e.message } }
+    }
+  }
+
+  async getAllServicesByCategory (category) {
+    try {
+      const categories = await this.userRead.table('services').getAll(category, { index: 'categoryId' })
+      return categories
+    } catch (e) {
+      return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_CATEGORIES', message: e.message } }
     }
   }
 }
