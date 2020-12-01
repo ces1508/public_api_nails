@@ -4,8 +4,8 @@ require('dotenv').config()
 const databaseSetup = {
   host: process.env.DB_URL,
   port: process.env.DB_PORT,
-  // user: process.env.DB_USER_FULL,
-  // password: process.env.DB_PASSWORD_FULL,
+  user: process.env.DB_USER_FULL,
+  password: process.env.DB_PASSWORD_FULL,
   db: process.env.DB_NAME
 }
 class Datasource {
@@ -15,8 +15,8 @@ class Datasource {
     /** @private connection with only permission to read */
     this.userRead = r({
       ...databaseSetup,
-      // user: process.env.DB_USER,
-      // password: process.env.DB_PASSWORD
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD
     })
   }
   /**
