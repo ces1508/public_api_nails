@@ -33,7 +33,7 @@ app.use('/employes', passport.authenticate('jwt', { session: false }), employes)
 app.use('/reservations', passport.authenticate('jwt', { session: false }), reservations)
 app.use('/notifications', passport.authenticate('jwt', { session: false }), notifications)
 app.use('/decorations', passport.authenticate('jwt', { session: false }), decorations)
-app.use('/categories', categories)
+app.use('/categories', passport.authenticate('jwt', { session: false }), categories)
 app.use('*', (req, res) => {
   res.status(403).send('no puedes acceder campeon')
 })

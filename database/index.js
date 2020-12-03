@@ -217,5 +217,40 @@ class Datasource {
       return { error: { code: 'DATABASE_ERROR', action: 'GETING_LIST_CATEGORIES', message: e.message } }
     }
   }
+  async getReservationToMailer (orderId) {
+    try {
+      let order = await this.userRead.table('reservations').get(orderId)
+      .merge(doc => {
+        return {
+          user:  this.userRead.table('clients').get(doc('userId')).pluck('firstName', 'lastName', 'phone'),
+          address: this.userRead.table('clients').get(doc('userId')).bracket('address').filter({ id: doc('address') }),
+          services: doc('services').map(service => {
+            return {
+              amount: service('cant'),
+              name: this.userRead.table('services').get(service('id')).getField('name')
+            }
+          })
+        }
+      }).pluck('user', 'address', 'services')
+      order = {
+        user: {
+          ...order.user,
+          ...order.address[0]
+        },
+        services: order.services
+      }
+      return order
+    } catch (e) {
+      return { error: true, code: 'ERROR DATABASE', action: 'GETING_RESERVATION_TO_SENT_MAIL', message: e.message }
+    }
+  }
+  async getAdminsEmails () {
+    try {
+      const emails = await this.userRead.table('admins').getField('email').coerceTo('array')
+      return emails
+    } catch (e) {
+      return { error: true, code: 'ERROR DATABASE', action: 'GETTING_ADMIN_EMAILS', message: e.message }
+    }
+  }
 }
 module.exports = new Datasource()

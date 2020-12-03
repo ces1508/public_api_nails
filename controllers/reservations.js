@@ -1,3 +1,4 @@
+const { sendOrderMailer } = require('../utils/mailer')
 const Datasource = require('../database')
 
 const history = async (req, res) => {
@@ -20,7 +21,6 @@ const create = async (req, res) => {
     let cant = data.services.filter(item => item.id === service.id)
     if (cant) return { id: service.id, cant: cant[0].amount }
   })
-  console.log(Math.round(new Date(data.date).getTime() / 1000.0))
   let reservation = {
     ...data,
     services,
@@ -28,6 +28,11 @@ const create = async (req, res) => {
     state: 'pending'
   }
   let newReservation = await Datasource.reservationCreate(reservation)
+  if (!newReservation.error) {
+    const emails = await Datasource.getAdminsEmails()
+    const reservationToMailer = await Datasource.getReservationToMailer(newReservation.generated_keys[0])
+    await sendOrderMailer(emails, reservationToMailer)
+  }
   res.status(200).json({ newReservation })
 }
 
