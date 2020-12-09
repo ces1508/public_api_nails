@@ -22,7 +22,7 @@ const signin = async (req, res) => {
       }
     }
   }
-  res.json({ error: { code: 'INVALID CREDENTIALS', message: 'incorret username or password' } })
+  res.json({ error: { code: 'INVALID CREDENTIALS', message: 'Correo o contraseña incorrectas' } })
 }
 const register = async (req, res) => {
   let data = req.body
