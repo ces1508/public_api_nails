@@ -1,3 +1,5 @@
+// user.value es la direccion de la persona
+
 function template (user, services) {
   return (`
 		<table style="border: 0px solid pink;border-collapse: collapse;width: 600px;">
@@ -9,7 +11,7 @@ function template (user, services) {
 			</tr>
 			<tr style="border: 1px solid pink;padding: 10px; ">
 				<td style="border: 1px solid pink;padding: 10px; ">${user.name}</td>
-				<td style="border: 1px solid pink;padding: 10px; ">${user.direction} </td>
+				<td style="border: 1px solid pink;padding: 10px; ">${user.value} </td>
 				<td style="border: 1px solid pink;padding: 10px; ">${user.phone} </td>
 				<td style="border: 1px solid pink;padding: 10px; ">${user.barrio} </td>
 			</tr>
