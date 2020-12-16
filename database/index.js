@@ -4,8 +4,8 @@ require('dotenv').config()
 const databaseSetup = {
   host: process.env.DB_URL,
   port: process.env.DB_PORT,
-  user: process.env.DB_USER_FULL,
-  password: process.env.DB_PASSWORD_FULL,
+  // user: process.env.DB_USER_FULL,
+  // password: process.env.DB_PASSWORD_FULL,
   db: process.env.DB_NAME
 }
 class Datasource {
@@ -15,8 +15,8 @@ class Datasource {
     /** @private connection with only permission to read */
     this.userRead = r({
       ...databaseSetup,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
+      // user: process.env.DB_USER,
+      // password: process.env.DB_PASSWORD
     })
   }
   /**
@@ -222,6 +222,7 @@ class Datasource {
       let order = await this.userRead.table('reservations').get(orderId)
       .merge(doc => {
         return {
+          date: doc('date'),
           user:  this.userRead.table('clients').get(doc('userId')).pluck('firstName', 'lastName', 'phone'),
           address: this.userRead.table('clients').get(doc('userId')).bracket('address').filter({ id: doc('address') }),
           services: doc('services').map(service => {
@@ -231,12 +232,13 @@ class Datasource {
             }
           })
         }
-      }).pluck('user', 'address', 'services')
+      }).pluck('user', 'date', 'address', 'services')
       order = {
         user: {
           ...order.user,
           ...order.address[0]
         },
+        date: order.date,
         services: order.services
       }
       return order

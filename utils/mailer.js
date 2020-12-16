@@ -24,9 +24,9 @@ async function sendMail (to, subject, template) {
 }
 
 function sendOrderMailer (administrators, order) {
-  const { user, services } = order
+  const { user, date, services } = order
   const subject = 'Ha llegado una nueva orden'
-  const template = reservationTemplate(user, services)
+  const template = reservationTemplate(user, date, services)
   return sendMail(administrators, subject, template)
 }
 
