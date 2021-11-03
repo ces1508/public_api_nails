@@ -33,7 +33,7 @@
     "rethinkdbdash": "^2.3.31",
     "rotating-file-stream": "^1.3.9",
     "uuid-base62": "^0.1.0",
-    "validator": "^10.9.0",
+    "validator": "^13.7.0",
     "winston": "^3.1.0"
   },
   "devDependencies": {
